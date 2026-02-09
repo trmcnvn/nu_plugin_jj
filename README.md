@@ -53,7 +53,7 @@ Returns a structured record with raw JJ repo state. Returns `nothing` outside a 
 
 ### `jj-prompt format`
 
-Returns a pre-formatted ANSI-colored string ready for use in a shell prompt. Defaults match [hydro-jj](https://github.com/jorgebucaran/hydro) styling.
+Returns a pre-formatted ANSI-colored string ready for use in a shell prompt. Defaults match [hydro-jj](https://github.com/trmcnvn/hydro-jj) styling.
 
 ```nu
 > jj-prompt format
