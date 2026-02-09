@@ -57,7 +57,7 @@ Returns a pre-formatted ANSI-colored string ready for use in a shell prompt. Def
 
 ```nu
 > jj-prompt format
-󱗆 kxqp zmso main (empty) (no description set)
+󱗆 kxqpzmso main (empty) (no description set)
 ```
 
 #### Symbols
