@@ -1,0 +1,22 @@
+[package]
+name = "nu_plugin_jj"
+version = "0.1.0"
+edition = "2024"
+description = "Nushell plugin for JJ repository prompt info"
+license = "MIT"
+
+[[bin]]
+name = "nu_plugin_jj"
+
+[dependencies]
+nu-plugin = "0.110"
+nu-protocol = "0.110"
+jj-lib = "0.38"
+thiserror = "2.0"
+interprocess = "=2.2.2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
