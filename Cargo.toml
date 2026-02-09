@@ -9,11 +9,11 @@ license = "MIT"
 name = "nu_plugin_jj"
 
 [dependencies]
-nu-plugin = "0.110"
-nu-protocol = "0.110"
+nu-plugin = "0.111"
+nu-protocol = "0.111"
 jj-lib = "0.38"
 thiserror = "2.0"
-interprocess = "=2.2.2"
+interprocess = "2.3"
 
 [profile.release]
 lto = true

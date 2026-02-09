@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use nu_plugin::{EngineInterface, EvaluatedCall, Plugin, SimplePluginCommand};
-use nu_protocol::{record, Category, LabeledError, Signature, SyntaxShape, Type, Value};
+use nu_protocol::{Category, LabeledError, Signature, SyntaxShape, Type, Value, record};
 
 use crate::jj;
 
@@ -44,12 +44,12 @@ fn color_to_ansi(color: &str) -> String {
                 "italic" => "3;",
                 "underline" => "4;",
                 "bright" => "9",
-                _ => return format!("\x1b[35m"),
+                _ => return "\x1b[35m".to_string(),
             };
             (a, *base)
         }
         [base] => ("", *base),
-        _ => return format!("\x1b[35m"),
+        _ => return "\x1b[35m".to_string(),
     };
 
     if base.starts_with('#') && base.len() == 7 {
@@ -93,9 +93,7 @@ fn color_to_ansi(color: &str) -> String {
         }
     };
 
-    if attrs == "9" {
-        format!("\x1b[{fg}m")
-    } else if attrs.is_empty() {
+    if attrs == "9" || attrs.is_empty() {
         format!("\x1b[{fg}m")
     } else {
         format!("\x1b[{attrs}{fg}m")
@@ -409,7 +407,7 @@ impl SimplePluginCommand for JjPromptFormatCommand {
 
 #[cfg(test)]
 mod tests {
-    use super::{color_to_ansi, format_prompt, parse_non_negative_usize, FormatOptions};
+    use super::{FormatOptions, color_to_ansi, format_prompt, parse_non_negative_usize};
     use crate::jj::{Bookmark, JjStatus};
 
     fn strip_ansi(input: &str) -> String {

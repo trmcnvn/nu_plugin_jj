@@ -109,8 +109,7 @@ pub fn collect(path: &Path) -> Result<Option<JjStatus>> {
         })
         .collect();
 
-    let ancestor_bookmarks =
-        find_ancestor_bookmarks(&repo, view, &wc_id, &immutable_heads, 10)?;
+    let ancestor_bookmarks = find_ancestor_bookmarks(&repo, view, &wc_id, &immutable_heads, 10)?;
     bookmarks.extend(ancestor_bookmarks);
 
     let (has_remote, is_synced) = check_remote_sync(view, &bookmarks);
@@ -251,14 +250,13 @@ fn check_remote_sync(view: &jj_lib::view::View, bookmarks: &[Bookmark]) -> (bool
     }
 
     let bm_name = &bookmarks[0].name;
-    let local_target = view.get_local_bookmark(&jj_lib::ref_name::RefName::new(bm_name));
+    let local_target = view.get_local_bookmark(jj_lib::ref_name::RefName::new(bm_name));
 
     let name_matcher = jj_lib::str_util::StringPattern::exact(bm_name).to_matcher();
     let mut has_remote = false;
     let mut is_synced = false;
 
-    for (symbol, remote_ref) in view.remote_bookmarks_matching(&name_matcher, &StringMatcher::All)
-    {
+    for (symbol, remote_ref) in view.remote_bookmarks_matching(&name_matcher, &StringMatcher::All) {
         if symbol.remote.as_str() == "git" {
             continue;
         }
