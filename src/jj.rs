@@ -10,6 +10,7 @@ use jj_lib::repo::StoreFactories;
 use jj_lib::settings::UserSettings;
 use jj_lib::str_util::StringMatcher;
 use jj_lib::workspace::{Workspace, default_working_copy_factories};
+use pollster::FutureExt as _;
 
 use crate::error::Error;
 
@@ -56,12 +57,14 @@ pub fn collect(path: &Path) -> Result<Option<JjStatus>> {
     let repo = workspace
         .repo_loader()
         .load_at_head()
+        .block_on()
         .map_err(|e| Error::Jj(format!("load repo: {e}")))?;
 
     let view = repo.view();
+    let workspace_name = workspace.workspace_name().to_owned();
 
-    let wc_id = match view.wc_commit_ids().get(workspace.workspace_name()) {
-        Some(id) => id.clone(),
+    let wc_id = match view.wc_commit_ids().get(&workspace_name).cloned() {
+        Some(id) => id,
         None => return Ok(None),
     };
 
@@ -79,15 +82,15 @@ pub fn collect(path: &Path) -> Result<Option<JjStatus>> {
 
     let empty = commit
         .is_empty(repo.as_ref())
+        .block_on()
         .map_err(|e| Error::Jj(format!("check empty: {e}")))?;
 
     let conflict = commit.has_conflict();
 
-    let divergent = repo
-        .resolve_change_id(commit.change_id())
-        .ok()
-        .flatten()
-        .is_some_and(|resolved| resolved.visible_with_offsets().count() > 1);
+    let divergent = match repo.resolve_change_id(commit.change_id()) {
+        Ok(Some(resolved)) => resolved.is_divergent(),
+        Ok(None) | Err(_) => false,
+    };
 
     let hidden = commit.is_hidden(repo.as_ref()).unwrap_or(false);
 
@@ -101,13 +104,13 @@ pub fn collect(path: &Path) -> Result<Option<JjStatus>> {
         .unwrap_or("")
         .to_string();
 
-    let mut bookmarks: Vec<Bookmark> = view
-        .local_bookmarks_for_commit(&wc_id)
-        .map(|(name, _)| Bookmark {
+    let mut bookmarks = Vec::new();
+    for (name, _) in view.local_bookmarks_for_commit(&wc_id) {
+        bookmarks.push(Bookmark {
             name: name.as_str().to_string(),
             distance: 0,
-        })
-        .collect();
+        });
+    }
 
     let ancestor_bookmarks = find_ancestor_bookmarks(&repo, view, &wc_id, &immutable_heads, 10)?;
     bookmarks.extend(ancestor_bookmarks);
